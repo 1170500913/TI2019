@@ -1,4 +1,4 @@
-# 取货机器人
+# 取货机器人主程序
 import RPi.GPIO as GPIO
 import vehicle
 import time
@@ -8,11 +8,18 @@ import camera
 import arm
 from channel import *
 
+########################
+# 待调参数：
+MAX_COUNT = 
+########################
 
+
+# 状态编号
 WAIT = -1
 STOP = 0
 UP = 1
 DOWN = 2
+
 
 
 
@@ -31,14 +38,13 @@ if __name__ == '__main__':
     step_time = 0  # 摄像头检测失败时，前进的步长
     count = 0      # 遇到的黑横线数目
     edge_flag = False  # 黑横线计数的辅助标志
-
-    region = -1    # 区域, 永远比count少1
+    region = -1    # 区域号, 永远比count少1
 
     target_region = -1 # 收到的目标区域
     cargo = -1   # 待取的物品，（int 编号）
     
 
-    while (True): # DFA
+    while (True): # FSM
 
         # 公共部分：
             
@@ -47,7 +53,7 @@ if __name__ == '__main__':
             
             vehicle.stop()
             # 输入区域、物品编号
-            region = input('region: ')
+            target_region = input('target region: ')
             cargo = input('cargo: ')
             
             move_stat = UP

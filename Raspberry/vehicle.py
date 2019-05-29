@@ -1,5 +1,5 @@
-# vehicle.py:
 # 车轮的基本动作
+
 
 import RPi.GPIO as GPIO
 from channel import *
