@@ -1,11 +1,11 @@
   # -*- coding: utf-8 -*
 import os
 from PIL import Image
-import pytesseract
+# import pytesseract
 import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
-from ir_lib import *
-from SunFounder_PCA9685 import Servo
+# from ir_lib import *
+# from SunFounder_PCA9685 import Servo
 import threading
 import urllib, urllib2, base64, sys
 import ssl, json
@@ -308,10 +308,17 @@ class Car(object):
 
 if __name__ == '__main__':
     try:
+        ch = input("#####\n")
         car = Car()
         while (True):
-            car.forward()
-            
+            if (ch = 'w'):
+                car.forward()
+            elif (ch = 's'):
+                car.back()
+            elif (ch = 'a'):
+                car.left()
+            elif (ch = 's'):
+                car.right()
     except KeyboardInterrupt:
         print('ERROR')
 
