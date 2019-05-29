@@ -308,16 +308,16 @@ class Car(object):
 
 if __name__ == '__main__':
     try:
-        ch = input("#####\n")
+        ch = input("::")
         car = Car()
         while (True):
-            if (ch = 'w'):
+            if (ch == 'w'):
                 car.forward()
-            elif (ch = 's'):
+            elif (ch == 's'):
                 car.back()
-            elif (ch = 'a'):
+            elif (ch == 'a'):
                 car.left()
-            elif (ch = 's'):
+            elif (ch == 's'):
                 car.right()
     except KeyboardInterrupt:
         print('ERROR')
