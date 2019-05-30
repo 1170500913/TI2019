@@ -34,91 +34,6 @@ remote_control = 0
 
 
 
-class Arm(object):
-    def __init__(self, s1=0, s2=1, s3=2):
-        self.s1 = s1  # 底盘
-        self.s2 = s2  # 中间
-        self.s3 = s3  # 夹持器
-
-    def servo_angle(self, snum, value):
-        global angle
-        angle = (value - 500) / (100 / 9)
-        myservo[snum].write(angle)
-
-    # 初始化位置
-    def setup(self):
-        self.servo_angle(self.s1, 1500)  # 底盘
-        self.servo_angle(self.s2, 1500)
-        self.servo_angle(self.s3, 1500)  # 夹持器
-
-    # 夹取
-    def step2(self):
-        for i in range(1500, 1871, 10):
-            self.servo_angle(self.s2, i)  # Mservo_up
-            time.sleep(0.01)
-
-    def step3(self):
-        for i in range(1500, 2401, 10):
-            self.servo_angle(self.s3, i)  # Hservo_open
-            time.sleep(0.01)
-
-    def step4(self):
-        for i in range(1430, 2501, 10):
-            self.servo_angle(self.s1, i)  # Lservo_turn
-            time.sleep(0.01)
-
-    def step5(self):
-        for i in range(1870, 1551, -10):
-            self.servo_angle(self.s2, i)  # Mservo_down
-            time.sleep(0.01)
-
-    def step6(self):
-        for i in range(2401, 1201, -10):
-            self.servo_angle(self.s3, i)  # Hservo_close
-            time.sleep(0.01)
-
-    def step7(self):
-        for i in range(1550, 1871, 10):
-            self.servo_angle(self.s2, i)  # Mservo_up
-            time.sleep(0.01)
-
-    def step8(self):
-        for i in range(2500, 1431, -10):
-            self.servo_angle(self.s1, i)  # Lservo_turn
-            time.sleep(0.01)
-
-    # 卸载
-    def step10(self):
-        for i in range(1430, 2501, 10):
-            self.servo_angle(self.s1, i)  # Lservo_turn
-            time.sleep(0.01)
-
-    def step11(self):
-        for i in range(1870, 1501, -10):
-            self.servo_angle(self.s2, i)  # Mservo_down
-            time.sleep(0.01)
-
-    def step12(self):
-        for i in range(1500, 2401, 10):
-            self.servo_angle(self.s3, i)  # Hservo_open
-            time.sleep(0.01)
-
-    # def step13(self):
-        # for i in range(1500,1871,10):
-        # self.servo_angle(self.s2,i) #Mservo_up
-        # time.sleep(0.01)
-
-    def step14(self):
-        for i in range(2500, 1431, -10):
-            self.servo_angle(self.s1, i)  # Lservo_turn
-            time.sleep(0.01)
-
-    def step15(self):
-        for i in range(2400, 1501, -10):
-            self.servo_angle(self.s3, i)  # Hservo_close
-            time.sleep(0.01)
-
-
 class Car(object):
     def __init__(self, rsensor1=27, rsensor2=25, msensor=24, lsensor1=22, lsensor2=10,
                  I1=7, EA=13, I3=8, EB=9, freq=50):
@@ -388,7 +303,8 @@ if __name__ == '__main__':
         while (True):
             sensors = car.read_sensors()
             mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
-            car.line_patrol(mid_three_sensors) 
+            car.line_patrol_back(mid_three_sensors) 
+            car.line_patrol_forward(mid_three_sensors) 
     except KeyboardInterrupt:
         print('ERROR')
 
