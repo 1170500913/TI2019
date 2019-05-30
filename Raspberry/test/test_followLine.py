@@ -305,14 +305,21 @@ class Car(object):
 
 if __name__ == '__main__':
     try:
+        flag = 0
         car = Car()
         while (True):
             sensors = car.read_sensors()
             mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             # car.line_patrol_back(mid_three_sensors) 
             car.line_patrol_forward(mid_three_sensors) 
-            if (sensors[0] or sensors[4]):
+            out1 = str(sensors[0])
+            out2 = str(sensors[4])
+            if ((out1 == '1' and out2 == '1') and flag == 0):
                 print("!@!")
+                flag = 1
+            if (out1 == '0' or out2 == '0'):
+                flag = 0
+                
     except KeyboardInterrupt:
         print('ERROR')
 
