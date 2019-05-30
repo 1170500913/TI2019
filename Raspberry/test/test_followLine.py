@@ -1,13 +1,13 @@
 # -*- coding: UTF-8 -*-
 import os
 from PIL import Image
-import pytesseract
+#import pytesseract
 import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
-from ir_lib import *
-from SunFounder_PCA9685 import Servo
+#from ir_lib import *
+#from SunFounder_PCA9685 import Servo
 import threading
-import urllib, urllib2, base64, sys
+#import urllib, urllib2, base64, sys
 import ssl, json
 
 lock = threading.Lock()
@@ -32,10 +32,6 @@ speedx = 70
 
 remote_control = 0
 
-for i in range(0, 4):
-    myservo.append(Servo.Servo(i))  # channel 1
-    Servo.Servo(i).setup()
-    print('myservo%s' % i)
 
 
 class Arm(object):
