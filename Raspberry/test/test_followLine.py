@@ -30,10 +30,10 @@ LMidspeed = 35
 minspeed = 30
 speedx = 70
 
-# minspeed = 30
-# lowspeed = 35
-# midspeed = 68
-# highspeed = 70
+minspeed = 30
+lowspeed = 35
+midspeed = 68
+highspeed = 70
 
 
 remote_control = 0
@@ -93,7 +93,7 @@ class Car(object):
 
         self.last_sensor = [0] * 5
 
-    def forward(self, duty_b=50, duty_a=50):  # left  right
+    def forward(self, duty_b=50, duty_a=50):  # right left
         # print("forward")
         GPIO.output(self.I1, True)
         GPIO.output(self.I3, True)
@@ -104,7 +104,7 @@ class Car(object):
             self.my_pwmB.ChangeDutyCycle(duty_b)
             self.last_pwmB = duty_b
             
-    def back(self, duty_b=50, duty_a=50):  # left  right
+    def back(self, duty_b=50, duty_a=50):  # right left
         # print("forward")
         GPIO.output(self.I1, False)
         GPIO.output(self.I3, False)
@@ -311,7 +311,7 @@ if __name__ == '__main__':
             sensors = car.read_sensors()
             mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             # car.line_patrol_back(mid_three_sensors) 
-            car.line_patrol_forward(mid_three_sensors) 
+            car.line_patrol_forward(mid_three_sensors, flag=1) 
             out1 = str(sensors[0])
             out2 = str(sensors[4])
             if ((out1 == '1' and out2 == '1') and flag == 0):
