@@ -158,7 +158,7 @@ class Car(object):
         return sensors
 
     def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
-        if sensors[4] == 1 and sensors[2] == 1:  # m and r2 is black at the same time
+        if sensors[4] == 1 and sensors[0] == 1:  # outside sensors is black at the same time
             self.now_state = 0
         else:
             self.now_state = 1
@@ -307,6 +307,7 @@ if __name__ == '__main__':
     try:
         flag = 0
         car = Car()
+        line_count = 0
         while (True):
             sensors = car.read_sensors()
             mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
@@ -314,12 +315,16 @@ if __name__ == '__main__':
             car.line_patrol_forward(mid_three_sensors, flag=1) 
             out1 = str(sensors[0])
             out2 = str(sensors[4])
-            if ((out1 == '1' and out2 == '1') and flag == 0):
-                print("!@!")
-                flag = 1
-            if (out1 == '0' or out2 == '0'):
-                flag = 0
-                
+            # if ((out1 == '1' and out2 == '1') and flag == 0):
+            #     print("!@!")
+            #     flag = 1
+            # if (out1 == '0' or out2 == '0'):
+            #     flag = 0
+            old_count = line_count
+            line_count = car.get_unload_pos(sensors, line_count)
+            if (old_count != line_count):
+                print(line_count)
+
     except KeyboardInterrupt:
         print('ERROR')
 
