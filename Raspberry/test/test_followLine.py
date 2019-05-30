@@ -1,13 +1,13 @@
-  # -*- coding: utf-8 -*
+# -*- coding: UTF-8 -*-
 import os
 from PIL import Image
-# import pytesseract
+import pytesseract
 import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
-# from ir_lib import *
-# from SunFounder_PCA9685 import Servo
+from ir_lib import *
+from SunFounder_PCA9685 import Servo
 import threading
-# import urllib, urllib2, base64, sys
+import urllib, urllib2, base64, sys
 import ssl, json
 
 lock = threading.Lock()
@@ -29,6 +29,98 @@ HMidspeed = 35
 LMidspeed = 35
 minspeed = 30
 speedx = 70
+
+remote_control = 0
+
+for i in range(0, 4):
+    myservo.append(Servo.Servo(i))  # channel 1
+    Servo.Servo(i).setup()
+    print('myservo%s' % i)
+
+
+class Arm(object):
+    def __init__(self, s1=0, s2=1, s3=2):
+        self.s1 = s1  # 底盘
+        self.s2 = s2  # 中间
+        self.s3 = s3  # 夹持器
+
+    def servo_angle(self, snum, value):
+        global angle
+        angle = (value - 500) / (100 / 9)
+        myservo[snum].write(angle)
+
+    # 初始化位置
+    def setup(self):
+        self.servo_angle(self.s1, 1500)  # 底盘
+        self.servo_angle(self.s2, 1500)
+        self.servo_angle(self.s3, 1500)  # 夹持器
+
+    # 夹取
+    def step2(self):
+        for i in range(1500, 1871, 10):
+            self.servo_angle(self.s2, i)  # Mservo_up
+            time.sleep(0.01)
+
+    def step3(self):
+        for i in range(1500, 2401, 10):
+            self.servo_angle(self.s3, i)  # Hservo_open
+            time.sleep(0.01)
+
+    def step4(self):
+        for i in range(1430, 2501, 10):
+            self.servo_angle(self.s1, i)  # Lservo_turn
+            time.sleep(0.01)
+
+    def step5(self):
+        for i in range(1870, 1551, -10):
+            self.servo_angle(self.s2, i)  # Mservo_down
+            time.sleep(0.01)
+
+    def step6(self):
+        for i in range(2401, 1201, -10):
+            self.servo_angle(self.s3, i)  # Hservo_close
+            time.sleep(0.01)
+
+    def step7(self):
+        for i in range(1550, 1871, 10):
+            self.servo_angle(self.s2, i)  # Mservo_up
+            time.sleep(0.01)
+
+    def step8(self):
+        for i in range(2500, 1431, -10):
+            self.servo_angle(self.s1, i)  # Lservo_turn
+            time.sleep(0.01)
+
+    # 卸载
+    def step10(self):
+        for i in range(1430, 2501, 10):
+            self.servo_angle(self.s1, i)  # Lservo_turn
+            time.sleep(0.01)
+
+    def step11(self):
+        for i in range(1870, 1501, -10):
+            self.servo_angle(self.s2, i)  # Mservo_down
+            time.sleep(0.01)
+
+    def step12(self):
+        for i in range(1500, 2401, 10):
+            self.servo_angle(self.s3, i)  # Hservo_open
+            time.sleep(0.01)
+
+    # def step13(self):
+        # for i in range(1500,1871,10):
+        # self.servo_angle(self.s2,i) #Mservo_up
+        # time.sleep(0.01)
+
+    def step14(self):
+        for i in range(2500, 1431, -10):
+            self.servo_angle(self.s1, i)  # Lservo_turn
+            time.sleep(0.01)
+
+    def step15(self):
+        for i in range(2400, 1501, -10):
+            self.servo_angle(self.s3, i)  # Hservo_close
+            time.sleep(0.01)
 
 
 class Car(object):
@@ -148,80 +240,6 @@ class Car(object):
         sensors[4] = GPIO.input(self.rsensor2)
         return sensors
 
-    # 图像识别
-    def characterRecognition(self, path):
-        access_token = '24.977dffd3097a7d82bb3ec001cd0f855d.2592000.1558054903.282335-16037182'
-        url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=' + access_token
-        f = open(path, 'rb')
-
-        img = base64.b64encode(f.read())
-        params = {"image": img}
-        params = urllib.urlencode(params)
-        request = urllib2.Request(url, params)
-        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
-        response = urllib2.urlopen(request)
-        content = response.read()
-        content = json.loads(content)
-        # print(content)
-        # result = content['words_result'][0]['words']
-        result = content['words_result']
-        num = content['words_result_num']
-        # print ('num:',num)
-        if (num != 0):  # Prevent multiple characters
-            print('result:' + result[0]['words'])
-            if '0' in result[0]['words']:
-                print('return:Y')
-                return 'Y'
-        return 'N'
-        # return 'Y'
-
-    # 图像处理
-    def pre(self, path, path2):
-        img = Image.open(path)
-        cropped = img.crop((0, 0, 640, 460))  # (left, upper, right, lower)
-        cropped.save(path2)
-
-    def capture(self):
-        print("capture")
-        self.stop()
-        b = Arm()
-        b.step2()
-        b.step3()
-        b.step4()
-        b.step5()
-        b.step6()
-        b.step7()
-        b.step8()
-        # os.system("sudo python capture.py")
-        # pass
-
-    def unload(self):
-        print("unload")
-        self.stop()
-        # os.system("sudo python unload.py")
-        # pass
-        b = Arm()
-        b.step10()
-        b.step11()
-        b.step12()
-        b.step14()
-        b.step15()
-
-    def attach_fsm(self, state, fsm):
-        self.fsm = fsm
-        self.curr_state = state
-        self.fsm.enter_state(self)
-
-    def change_fsm(self, new_state, new_fsm):
-        self.fsm.exit_state(self)
-        self.curr_state = new_state
-        self.fsm = new_fsm
-        self.fsm.enter_state(self)
-        self.fsm.exec_state(self)
-
-    def keep_fsm(self):
-        self.fsm.exec_state(self)
-
     def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
         if sensors[4] == 1 and sensors[2] == 1:  # m and r2 is black at the same time
             self.now_state = 0
@@ -306,19 +324,14 @@ class Car(object):
             self.last_sensor = sensors
             return 0
 
+
 if __name__ == '__main__':
     try:
-        ch = input("::")
         car = Car()
         while (True):
-            if (ch == 'w'):
-                car.forward()
-            elif (ch == 's'):
-                car.back()
-            elif (ch == 'a'):
-                car.left()
-            elif (ch == 's'):
-                car.right()
+            sensors = car.read_sensors()
+            mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
+            car.line_patrol(mid_three_sensors) 
     except KeyboardInterrupt:
         print('ERROR')
 
