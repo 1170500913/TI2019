@@ -148,39 +148,6 @@ class Car(object):
         sensors[4] = GPIO.input(self.rsensor2)
         return sensors
 
-    # 图像识别
-    def characterRecognition(self, path):
-        access_token = '24.977dffd3097a7d82bb3ec001cd0f855d.2592000.1558054903.282335-16037182'
-        url = 'https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=' + access_token
-        f = open(path, 'rb')
-
-        img = base64.b64encode(f.read())
-        params = {"image": img}
-        params = urllib.urlencode(params)
-        request = urllib2.Request(url, params)
-        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
-        response = urllib2.urlopen(request)
-        content = response.read()
-        content = json.loads(content)
-        # print(content)
-        # result = content['words_result'][0]['words']
-        result = content['words_result']
-        num = content['words_result_num']
-        # print ('num:',num)
-        if (num != 0):  # Prevent multiple characters
-            print('result:' + result[0]['words'])
-            if '0' in result[0]['words']:
-                print('return:Y')
-                return 'Y'
-        return 'N'
-        # return 'Y'
-
-    # 图像处理
-    def pre(self, path, path2):
-        img = Image.open(path)
-        cropped = img.crop((0, 0, 640, 460))  # (left, upper, right, lower)
-        cropped.save(path2)
-
     def capture(self):
         print("capture")
         self.stop()

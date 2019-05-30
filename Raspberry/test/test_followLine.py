@@ -246,7 +246,7 @@ class Car(object):
         self.last_state = self.now_state
         return flag_cnt
 
-    def line_patrol(self, sensors=0, flag=0, turn_flag=0):
+    def line_patrol_forward(self, sensors=0, flag=0, turn_flag=0):
         if flag == 1:
             if sensors == '010':
                 self.slip_cnt = 0
@@ -299,6 +299,67 @@ class Car(object):
                 self.forward(LMidspeed,Llowspeed)           
             elif sensors == '111':
                 self.forward(Rlowspeed,Llowspeed)
+            elif sensors == '000':
+                if turn_flag == 1:
+                    self.left(Rlowspeed)
+                else:
+                    self.right(Llowspeed)
+            else:
+                self.stop()
+
+    def line_patrol_back(self, sensors=0, flag=0, turn_flag=0):
+        if flag == 1:
+            if sensors == '010':
+                self.slip_cnt = 0
+                self.back(Rhigspeed, Lhigspeed) #(右侧电机，左侧电机)
+            elif sensors == '100':
+                self.slip_cnt = 0
+                self.back(speedx,minspeed) #左转
+                
+            elif sensors == '110':
+                #self.back(Rhigspeed,HMidspeed) #左转
+                self.slip_cnt += 20
+                speed = speed = Rhigspeed - self.slip_cnt/10
+                if speed < HMidspeed:
+                    self.slip_cnt = 0
+                    speed = HMidspeed
+                self.back(Rhigspeed,speed)
+                
+            elif sensors == '001':
+                self.slip_cnt = 0
+                self.back(minspeed,speedx) #右转
+            elif sensors == '011':
+                #self.back(HMidspeed,Lhigspeed) #右转
+                self.slip_cnt += 20
+                speed = speed = Rhigspeed - self.slip_cnt/10
+                if speed < HMidspeed:
+                    self.slip_cnt = 0
+                    speed = HMidspeed
+                self.back(speed,Rhigspeed)  
+                
+            elif sensors == '111':
+                self.slip_cnt = 0
+                self.back(Rhigspeed,Lhigspeed) 
+            elif sensors == '000':
+                if turn_flag == 1:
+                    self.left(Lhigspeed)
+                else:
+                    self.right(Rhigspeed)
+            else:
+                self.stop()
+        else:
+            if sensors == '010':
+                self.back(Rlowspeed, Llowspeed)
+            elif sensors == '100':
+                self.back(speedx,0)
+            elif sensors == '110': #turn_left
+                self.back(Rlowspeed,LMidspeed)            
+            elif sensors == '001':
+                self.back(0,speedx)
+            elif sensors == '011': #turn_right
+                self.back(LMidspeed,Llowspeed)           
+            elif sensors == '111':
+                self.back(Rlowspeed,Llowspeed)
             elif sensors == '000':
                 if turn_flag == 1:
                     self.left(Rlowspeed)
