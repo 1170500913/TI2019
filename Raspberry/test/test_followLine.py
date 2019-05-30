@@ -30,6 +30,12 @@ LMidspeed = 35
 minspeed = 30
 speedx = 70
 
+# minspeed = 30
+# lowspeed = 35
+# midspeed = 68
+# highspeed = 70
+
+
 remote_control = 0
 
 
@@ -303,8 +309,10 @@ if __name__ == '__main__':
         while (True):
             sensors = car.read_sensors()
             mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
-            car.line_patrol_back(mid_three_sensors) 
+            # car.line_patrol_back(mid_three_sensors) 
             car.line_patrol_forward(mid_three_sensors) 
+            if (sensors[0] or sensors[4]):
+                print("!@!")
     except KeyboardInterrupt:
         print('ERROR')
 
