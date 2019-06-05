@@ -2,6 +2,7 @@
 import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
 from car import Car
+import threading
 
 # 全局变量
 count = 0   # 黑横线的数量
@@ -11,6 +12,7 @@ count = 0   # 黑横线的数量
 class Thread1(threading.Thread):
 
     def __init__(self, car):
+        threading.Thread.__init__(self)
         self.car = car
 
     def run(self):
@@ -21,13 +23,14 @@ class Thread1(threading.Thread):
             mid_three_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             # car.line_patrol_back(mid_three_sensors)
             turn_flag = car.turn_judge(sensors)
-            car.line_patrol_forward(mid_three_sensors, flag=1, turn_flag)
-            if (count == 10)
+            car.line_patrol_forward(mid_three_sensors, 1, turn_flag)
+            if (count == 10):
                 break
 
 # 检测黑横线
 class Thread2(threading.Thread):
     def __init__(self, car):
+        threading.Thread.__init__(self)
         self.car = car
 
     def run(self):
@@ -48,7 +51,7 @@ if __name__ == "__main__":
         task2.start()
         task1.join()
         task2.join()
-    except: KeyboardInterrupt
+    except KeyboardInterrupt:
         print("ERROR")
     finally:
         GPIO.cleanup()
