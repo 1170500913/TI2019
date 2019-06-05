@@ -13,10 +13,9 @@ threadLock = threading.Lock()
 # 巡线
 class Thread1(threading.Thread):
 
-    def __init__(self, car,stop=10):
+    def __init__(self, car):
         threading.Thread.__init__(self)
         self.car = car
-        self.stop = stop
 
     def run(self):
         global count, sensors
@@ -40,6 +39,7 @@ class Thread2(threading.Thread):
         car = self.car
         while (True):
             count = car.get_unload_pos(sensors, count)
+            time.sleep(0.001)
 
 # 更新传感器
 class Thread3(threading.Thread):
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
         stop = int(input("最大黑横线："))
         car = Car()
-        task1 = Thread1(car, stop)
+        task1 = Thread1(car)
         task2 = Thread2(car)
         task3 = Thread3(car)
         task1.start()
