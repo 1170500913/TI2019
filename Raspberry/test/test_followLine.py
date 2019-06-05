@@ -8,7 +8,8 @@ import RPi.GPIO as GPIO  # RPi GPIO Lib
 #from SunFounder_PCA9685 import Servo
 import threading
 #import urllib, urllib2, base64, sys
-import ssl, json
+import ssl
+import json
 
 lock = threading.Lock()
 myservo = []
@@ -39,7 +40,6 @@ highspeed = 70
 remote_control = 0
 
 
-
 class Car(object):
     def __init__(self, rsensor1=27, rsensor2=25, msensor=24, lsensor1=22, lsensor2=10,
                  I1=7, EA=13, I3=8, EB=9, freq=50):
@@ -68,7 +68,6 @@ class Car(object):
         GPIO.setup(self.msensor, GPIO.IN)
         GPIO.setup(self.lsensor1, GPIO.IN)
         GPIO.setup(self.lsensor2, GPIO.IN)
-
 
         GPIO.setup(self.I1, GPIO.OUT)
         GPIO.setup(self.EA, GPIO.OUT)
@@ -103,7 +102,7 @@ class Car(object):
         if duty_b != self.last_pwmB:
             self.my_pwmB.ChangeDutyCycle(duty_b)
             self.last_pwmB = duty_b
-            
+
     def back(self, duty_b=50, duty_a=50):  # right left
         # print("forward")
         GPIO.output(self.I1, False)
@@ -114,7 +113,7 @@ class Car(object):
         if duty_b != self.last_pwmB:
             self.my_pwmB.ChangeDutyCycle(duty_b)
             self.last_pwmB = duty_b
-            
+
     def right(self, duty_cycle=50):
         # print("left")
         GPIO.output(self.I1, True)
@@ -157,135 +156,66 @@ class Car(object):
         sensors[4] = GPIO.input(self.rsensor2)
         return sensors
 
-    def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
-        if sensors[4] == 1 and sensors[0] == 1:  # outside sensors is black at the same time
-            self.now_state = 0
-        else:
-            self.now_state = 1
-        if self.now_state == 0 and self.last_state == 1:
-            flag_cnt += 1
-        self.last_state = self.now_state
-        return flag_cnt
+    # sensors: 中间三个传感器
 
     def line_patrol_forward(self, sensors=0, flag=0, turn_flag=0):
         if flag == 1:
             if sensors == '010':
                 self.slip_cnt = 0
-                self.forward(Rhigspeed, Lhigspeed) #(右侧电机，左侧电机)
+                self.forward(highspeed, highspeed)  # (右侧电机，左侧电机)
             elif sensors == '100':
                 self.slip_cnt = 0
-                self.forward(speedx,minspeed) #左转
-                
-            elif sensors == '110':
-                #self.forward(Rhigspeed,HMidspeed) #左转
-                self.slip_cnt += 20
-                speed = speed = Rhigspeed - self.slip_cnt/10
-                if speed < HMidspeed:
-                    self.slip_cnt = 0
-                    speed = HMidspeed
-                self.forward(Rhigspeed,speed)
-                
-            elif sensors == '001':
-                self.slip_cnt = 0
-                self.forward(minspeed,speedx) #右转
-            elif sensors == '011':
-                #self.forward(HMidspeed,Lhigspeed) #右转
-                self.slip_cnt += 20
-                speed = speed = Rhigspeed - self.slip_cnt/10
-                if speed < HMidspeed:
-                    self.slip_cnt = 0
-                    speed = HMidspeed
-                self.forward(speed,Rhigspeed)  
-                
-            elif sensors == '111':
-                self.slip_cnt = 0
-                self.forward(Rhigspeed,Lhigspeed) 
-            elif sensors == '000':
-                if turn_flag == 1:
-                    self.left(Lhigspeed)
-                else:
-                    self.right(Rhigspeed)
-            else:
-                self.stop()
-        else:
-            if sensors == '010':
-                self.forward(Rlowspeed, Llowspeed)
-            elif sensors == '100':
-                self.forward(speedx,0)
-            elif sensors == '110': #turn_left
-                self.forward(Rlowspeed,LMidspeed)            
-            elif sensors == '001':
-                self.forward(0,speedx)
-            elif sensors == '011': #turn_right
-                self.forward(LMidspeed,Llowspeed)           
-            elif sensors == '111':
-                self.forward(Rlowspeed,Llowspeed)
-            elif sensors == '000':
-                if turn_flag == 1:
-                    self.left(Rlowspeed)
-                else:
-                    self.right(Llowspeed)
-            else:
-                self.stop()
+                self.forward(highspeed, minspeed)  # 左转
 
-    def line_patrol_back(self, sensors=0, flag=0, turn_flag=0):
-        if flag == 1:
-            if sensors == '010':
-                self.slip_cnt = 0
-                self.back(Rhigspeed, Lhigspeed) #(右侧电机，左侧电机)
-            elif sensors == '100':
-                self.slip_cnt = 0
-                self.back(speedx,minspeed) #左转
-                
             elif sensors == '110':
-                #self.back(Rhigspeed,HMidspeed) #左转
+                # self.forward(Rhigspeed,HMidspeed) #左转
                 self.slip_cnt += 20
-                speed = speed = Rhigspeed - self.slip_cnt/10
-                if speed < HMidspeed:
+                speed = highspeed - self.slip_cnt/10
+                if speed < lowspeed:
                     self.slip_cnt = 0
-                    speed = HMidspeed
-                self.back(Rhigspeed,speed)
-                
+                    speed = lowspeed
+                self.forward(highspeed, speed)
+
             elif sensors == '001':
                 self.slip_cnt = 0
-                self.back(minspeed,speedx) #右转
+                self.forward(minspeed, highspeed)  # 右转
             elif sensors == '011':
-                #self.back(HMidspeed,Lhigspeed) #右转
+                # self.forward(HMidspeed,Lhigspeed) #右转
                 self.slip_cnt += 20
-                speed = speed = Rhigspeed - self.slip_cnt/10
-                if speed < HMidspeed:
+                speed = highspeed - self.slip_cnt/10
+                if speed < lowspeed:
                     self.slip_cnt = 0
-                    speed = HMidspeed
-                self.back(speed,Rhigspeed)  
-                
+                    speed = lowspeed
+                self.forward(speed, highspeed)
+
             elif sensors == '111':
                 self.slip_cnt = 0
-                self.back(Rhigspeed,Lhigspeed) 
+                self.forward(highspeed, highspeed)
             elif sensors == '000':
                 if turn_flag == 1:
-                    self.left(Lhigspeed)
+                    self.left(highspeed)
                 else:
-                    self.right(Rhigspeed)
+                    self.right(highspeed)
             else:
                 self.stop()
         else:
             if sensors == '010':
-                self.back(Rlowspeed, Llowspeed)
+                self.forward(highspeed, highspeed)
             elif sensors == '100':
-                self.back(speedx,0)
-            elif sensors == '110': #turn_left
-                self.back(Rlowspeed,LMidspeed)            
+                self.forward(highspeed, 0)
+            elif sensors == '110':  # turn_left
+                self.forward(highspeed, lowspeed)
             elif sensors == '001':
-                self.back(0,speedx)
-            elif sensors == '011': #turn_right
-                self.back(LMidspeed,Llowspeed)           
+                self.forward(0, highspeed)
+            elif sensors == '011':  # turn_right
+                self.forward(lowspeed, highspeed)
             elif sensors == '111':
-                self.back(Rlowspeed,Llowspeed)
+                self.forward(highspeed, highspeed)
             elif sensors == '000':
                 if turn_flag == 1:
-                    self.left(Rlowspeed)
+                    self.left(highspeed)
                 else:
-                    self.right(Llowspeed)
+                    self.right(highspeed)
             else:
                 self.stop()
 
@@ -302,31 +232,59 @@ class Car(object):
             self.last_sensor = sensors
             return 0
 
+    def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
+        if sensors[4] == 1 and sensors[0] == 1:  # outside sensors is black at the same time
+            self.now_state = 0
+        else:
+            self.now_state = 1
+        if self.now_state == 0 and self.last_state == 1:
+            flag_cnt += 1
+            print(flag_cnt)
+        self.last_state = self.now_state
+        return flag_cnt
 
-if __name__ == '__main__':
-    try:
-        flag = 0
-        car = Car()
-        line_count = 0
+
+class Thread1(threading.Thread):
+
+    def __init__(self, car):
+        self.car = car
+
+    def run(self):
+        car = self.car
         while (True):
             sensors = car.read_sensors()
-            mid_three_sensors =  str(sensors[1]) + str(sensors[2]) + str(sensors[3])
-            # car.line_patrol_back(mid_three_sensors) 
-            car.line_patrol_forward(mid_three_sensors, flag=1) 
-            out1 = str(sensors[0])
-            out2 = str(sensors[4])
-            # if ((out1 == '1' and out2 == '1') and flag == 0):
-            #     print("!@!")
-            #     flag = 1
-            # if (out1 == '0' or out2 == '0'):
-            #     flag = 0
-            old_count = line_count
-            line_count = car.get_unload_pos(sensors, line_count)
-            if (old_count != line_count):
-                print(line_count)
+            mid_three_sensors = str(
+                sensors[1]) + str(sensors[2]) + str(sensors[3])
+            # car.line_patrol_back(mid_three_sensors)
+            turn_flag = car.turn_judge(sensors)
+            car.line_patrol_forward(mid_three_sensors, flag=1, turn_flag)
 
-    except KeyboardInterrupt:
-        print('ERROR')
 
+class Thread2(threading.Thread):
+    def __init__(self, car):
+        self.car = car
+
+    def run(self):
+        count = 0
+        car = self.car
+        while (True):
+            sensors = car.read_sensors()
+            count = car.get_unload_pos(sensors, count)
+            sleep(0.001)
+
+
+if __name__ == "__main__":
+    try:
+        car = Car()
+        task1 = Thread1(car)
+        task2 = Thread2(car)
+        task1.start()
+        task2.start()
+        task1.join()
+        task2.join()
+    except: KeyboardInterrupt
+        print("ERROR")
     finally:
         GPIO.cleanup()
+
+            
