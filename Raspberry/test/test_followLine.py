@@ -47,7 +47,9 @@ class Thread3(threading.Thread):
     def run(self):
         global sensors
         while (True):
+            threadLock.acquire()
             sensors = car.read_sensors()
+            threadLock.release()
 
 
 if __name__ == "__main__":
