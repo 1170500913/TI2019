@@ -39,7 +39,7 @@ class Thread2(threading.Thread):
         while (True):
             sensors = car.read_sensors()
             count = car.get_unload_pos(sensors, count)
-            sleep(0.001)
+            time.sleep(0.001)
 
 
 if __name__ == "__main__":
