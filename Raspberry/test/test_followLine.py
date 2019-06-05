@@ -25,6 +25,7 @@ class Thread1(threading.Thread):
             turn_flag = car.turn_judge(sensors)
             car.line_patrol_forward(mid_three_sensors, 1, turn_flag)
             if (count == 10):
+                car.stop()
                 break
 
 # 检测黑横线
