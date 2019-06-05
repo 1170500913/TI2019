@@ -53,7 +53,7 @@ class Thread3(threading.Thread):
 if __name__ == "__main__":
     try:
 
-        stop = input("最大黑横线：")
+        stop = int(input("最大黑横线："))
         car = Car()
         task1 = Thread1(car, stop)
         task2 = Thread2(car)
