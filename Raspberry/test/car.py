@@ -22,6 +22,11 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
+minspeed = minspeed - 20
+lowspeed = lowspeed - 20
+midspeed = midspeed - 20
+highspeed = highspeed - 20
+
 
 
 class Car(object):
@@ -152,7 +157,7 @@ class Car(object):
                 self.forward(highspeed, minspeed)  # 左转
 
             elif sensors == '110':
-                self.slip_cnt += 20
+                self.slip_cnt += 30
                 speed = highspeed - self.slip_cnt/10
                 if speed < lowspeed:
                     self.slip_cnt = 0
@@ -163,7 +168,7 @@ class Car(object):
                 self.slip_cnt = 0
                 self.forward(minspeed, highspeed)  # 右转
             elif sensors == '011':
-                self.slip_cnt += 20
+                self.slip_cnt += 30
                 speed = highspeed - self.slip_cnt/10
                 if speed < lowspeed:
                     self.slip_cnt = 0

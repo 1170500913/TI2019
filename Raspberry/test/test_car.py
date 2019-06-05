@@ -2,6 +2,7 @@
   
 import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
+from car import Car
 
 if __name__ == '__main__':
     try:
