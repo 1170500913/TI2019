@@ -12,9 +12,10 @@ threadLock = threading.Lock()
 # 巡线
 class Thread1(threading.Thread):
 
-    def __init__(self, car):
+    def __init__(self, car, stop):
         threading.Thread.__init__(self)
         self.car = car
+        self.stop = stop
 
     def run(self):
         global count
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     try:
         stop = int(input("最大黑横线："))
         car = Car()
-        task1 = Thread1(car)
+        task1 = Thread1(car, stop)
         task2 = Thread2(car)
         task1.start()
         task2.start()
