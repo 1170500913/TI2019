@@ -3,6 +3,7 @@ import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
 from car import Car
 import threading
+import threadLock
 
 # 全局变量
 count = 0   # 黑横线的数量
