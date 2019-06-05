@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*
-from RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 
 TRIG = 4
@@ -34,4 +34,4 @@ def isLowerThan(min = 30):
 
 def detect_object():
     # return isLowerThan(30)
-    return False
+    return True

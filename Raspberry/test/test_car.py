@@ -10,7 +10,7 @@ if __name__ == '__main__':
         car = Car()
         while (True):
             if (ch == 'w'):
-                car.forward()
+                car.forward(70, 70)
             elif (ch == 's'):
                 car.back()
             elif (ch == 'a'):

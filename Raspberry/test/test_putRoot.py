@@ -6,6 +6,7 @@ import ultra
 import camera
 import arm
 
+threadLock = threading.Lock()
 map = {}
 region = 0
 
@@ -20,12 +21,13 @@ class main_thread(threading.Thread):
         global region
         car = self.car
         finished = False
-        count_down  # 用于前进一段步长
+        count_down = 0 # 用于前进一段步长
         object_id = 0
         while (True):
             sensors = car.read_sensors()
             in_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             if (self.stat == 0):  # 等待状态
+                car.stop()
                 ch = input("输入s开始")
                 if (ch == 's'):
                     self.stat = 1
@@ -35,7 +37,7 @@ class main_thread(threading.Thread):
 
                 if (region != 0):
                     self.stat = 5
-                    print("货物搬完了")
+                    print("没有可搬的货物")
                     finished = True
 
                 detect = ultra.detect_object()
@@ -69,12 +71,16 @@ class main_thread(threading.Thread):
                     map[object_id] = region  # 更新map
                     self.stat = 5
 
-            if (self.stat == 5)   # 回停货区的途中
+                if (region == 0):
+                	print("货架已经满了")
+                	self.stat = 2
+
+            if (self.stat == 5):   # 回停货区的途中
                 car.line_patrol_forward(in_sensors, 1, 0)
-                if (region == 0)
+                if (region == 0):
                     if (finished):
                         self.stat = 0
-                    else 
+                    else :
                         self.stat = 1
 
 
@@ -90,11 +96,11 @@ class count_thread(threading.Thread):
             threadLock.acquire()
             sensors = car.read_sensors()
             threadLock.release()
-            count = car.get_unload_pos(sensors, region)
+            num = region
+            region = car.get_unload_pos(sensors, num)
 
 if __name__ == "__main__":
     try:
-        stop = int(input("最大黑横线："))
         car = Car()
         task1 = main_thread(car)
         task2 = count_thread(car)

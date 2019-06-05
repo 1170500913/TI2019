@@ -22,10 +22,10 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
-minspeed = minspeed - 20
-lowspeed = lowspeed - 20
-midspeed = midspeed - 20
-highspeed = highspeed - 20
+minspeed = minspeed - 10
+lowspeed = lowspeed - 10
+midspeed = midspeed - 10
+highspeed = highspeed - 10
 
 
 
@@ -226,6 +226,6 @@ class Car(object):
             self.now_state = 1
         if self.now_state == 0 and self.last_state == 1:
             flag_cnt = (flag_cnt + 1) % 5
-            print("进入第" + flag_cnt + "区域")
+            print("进入第" + str(flag_cnt) + "区域")
         self.last_state = self.now_state
         return flag_cnt
