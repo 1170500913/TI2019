@@ -20,7 +20,7 @@ class Thread1(threading.Thread):
         global count
         car = self.car
         while (True):
-            sensor = car.read_sensors()
+            sensors = car.read_sensors()
             mid_three_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])  
             turn_flag = car.turn_judge(sensors)
             car.line_patrol_forward(mid_three_sensors, 1, turn_flag)
@@ -38,7 +38,7 @@ class Thread2(threading.Thread):
         global count
         car = self.car
         while (True):
-            sensor = car.read_sensors()
+            sensors = car.read_sensors()
             count = car.get_unload_pos(sensors, count)
             time.sleep(0.001)
 
