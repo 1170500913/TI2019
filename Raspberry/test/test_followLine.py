@@ -3,11 +3,12 @@ import time  # RPi time Lib
 import RPi.GPIO as GPIO  # RPi GPIO Lib
 from car import Car
 import threading
-import threadLock
 
 # 全局变量
 count = 0   # 黑横线的数量
 sensors = [0] * 5
+
+threadLock = threading.Lock()
 
 # 巡线
 class Thread1(threading.Thread):
