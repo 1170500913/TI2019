@@ -24,7 +24,11 @@ class Thread1(threading.Thread):
             mid_three_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])  
             turn_flag = car.turn_judge(sensors)
             car.line_patrol_forward(mid_three_sensors, 1, turn_flag)
+<<<<<<< HEAD
             if (count >= self.stop):
+=======
+            if (count == 10):
+>>>>>>> parent of 98ac1e4... 手动输入最大黑横线
                 car.stop()
                 break
 
