@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*
 from RPi.GPIO as GPIO
 import time
 

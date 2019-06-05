@@ -91,3 +91,19 @@ class count_thread(threading.Thread):
             sensors = car.read_sensors()
             threadLock.release()
             count = car.get_unload_pos(sensors, region)
+
+if __name__ == "__main__":
+    try:
+        stop = int(input("最大黑横线："))
+        car = Car()
+        task1 = main_thread(car)
+        task2 = count_thread(car)
+        task1.start()
+        task2.start()
+        task1.join()
+        task2.join()
+    except KeyboardInterrupt:
+        print("ERROR")
+    finally:
+        GPIO.cleanup()
+
