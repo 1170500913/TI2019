@@ -225,7 +225,7 @@ class Car(object):
         else:
             self.now_state = 1
         if self.now_state == 0 and self.last_state == 1:
-            flag_cnt += 1
-            print(flag_cnt)
+            flag_cnt = (flag_cnt + 1) % 5
+            print("进入第" + flag_cnt + "区域")
         self.last_state = self.now_state
         return flag_cnt
