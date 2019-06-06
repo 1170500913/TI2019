@@ -7,6 +7,7 @@ import RPi.GPIO as GPIO  # RPi GPIO Lib
 #from ir_lib import *
 #from SunFounder_PCA9685 import Servo
 import threading
+from arm import Arm
 #import urllib, urllib2, base64, sys
 
 # 红外线的接口
@@ -229,3 +230,29 @@ class Car(object):
             print("进入第" + str(flag_cnt) + "区域")
         self.last_state = self.now_state
         return flag_cnt
+        
+    def capture(self):
+        print("capture")
+        self.stop()
+        b = Arm()
+        b.step2()
+        b.step3()
+        b.step4()
+        b.step5()
+        b.step6()
+        b.step7()
+        b.step8()
+        # os.system("sudo python capture.py")
+        # pass
+
+    def unload(self):
+        print("unload")
+        self.stop()
+        # os.system("sudo python unload.py")
+        # pass
+        b = Arm()
+        b.step10()
+        b.step11()
+        b.step12()
+        b.step14()
+        b.step15()
