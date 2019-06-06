@@ -46,7 +46,7 @@ class main_thread(threading.Thread):
                     object_id = camera.identify()
                     if (object_id == -1):  # 识别失败
                         self.stat = 2
-                        count_down = 100
+                        count_down = 1000
                     else:   # 识别成功
                         arm.catch()
                         self.stat = 3
@@ -54,6 +54,11 @@ class main_thread(threading.Thread):
             if (self.stat == 2):   # 前进一段步长状态
                 count_down -= 1
                 car.line_patrol_forward(in_sensors, 1, 0)
+                if (region != 0):
+                    self.stat = 5
+                    print("没有可搬的货物")
+                    finished = True
+                    
                 if (count_down == 0):
                     self.stat = 1    # 前进步长结束，又回到寻货状态
             
@@ -73,7 +78,7 @@ class main_thread(threading.Thread):
 
                 if (region == 0):
                 	print("货架已经满了")
-                	self.stat = 2
+                	self.stat = 0
 
             if (self.stat == 5):   # 回停货区的途中
                 car.line_patrol_forward(in_sensors, 1, 0)

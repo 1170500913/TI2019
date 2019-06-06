@@ -15,7 +15,7 @@ if __name__ == '__main__':
                 car.back()
             elif (ch == 'a'):
                 car.left()
-            elif (ch == 's'):
+            elif (ch == 'd'):
                 car.right()
     except KeyboardInterrupt:
         print('ERROR')
