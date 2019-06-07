@@ -10,6 +10,11 @@ import threading
 from arm import Arm
 #import urllib, urllib2, base64, sys
 
+# 超声波
+TRIG = 17
+ECHO = 4
+
+
 # 红外线的接口
 msensor = 24
 rsensor1 = 27
@@ -32,13 +37,16 @@ highspeed = highspeed - 10
 
 class Car(object):
     def __init__(self, rsensor1=27, rsensor2=25, msensor=24, lsensor1=22, lsensor2=10,
-                 I1=7, EA=13, I3=8, EB=9, freq=50):
+                 I1=7, EA=13, I3=8, EB=9, freq=50,
+                 TRIG = 17,ECHO = 4):
         # self.loadflag = 0  # 负载标志
         self.rsensor1 = rsensor1
         self.rsensor2 = rsensor2
         self.msensor = msensor
         self.lsensor1 = lsensor1
         self.lsensor2 = lsensor2
+        self.TRIG = TRIG
+        self.ECHO = ECHO
 
         self.times = 0
         self.I1 = I1
@@ -58,7 +66,9 @@ class Car(object):
         GPIO.setup(self.msensor, GPIO.IN)
         GPIO.setup(self.lsensor1, GPIO.IN)
         GPIO.setup(self.lsensor2, GPIO.IN)
-
+        GPIO.setup(self.ECHO, GPIO.IN)
+        
+        GPIO.setup(self.TRIG, GPIO.OUT)
         GPIO.setup(self.I1, GPIO.OUT)
         GPIO.setup(self.EA, GPIO.OUT)
         GPIO.setup(self.I3, GPIO.OUT)
@@ -256,3 +266,34 @@ class Car(object):
         b.step12()
         b.step14()
         b.step15()
+
+    def distance(self):
+
+        GPIO.output(self.TRIG, True)
+        time.sleep(0.00001)
+        GPIO.output(self.TRIG, False)
+         
+        while GPIO.input(self.ECHO) == False:
+            pass
+        start = time.time()
+     
+        while GPIO.input(self.ECHO) == True:
+            pass
+        stop = time.time()
+     
+        elapsed = stop - start
+        distance = elapsed * 34000  # ms
+        distance = distance / 2
+        return distance
+
+    # 是否低于某距离
+    def isLowerThan(self,min = 30):
+        dist = self.distance()
+        if (dist < min):
+            return True
+        else:
+           return False
+
+    def detect_object(self):
+        # return isLowerThan(30)
+        return True

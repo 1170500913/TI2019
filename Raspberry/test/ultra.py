@@ -2,8 +2,8 @@
 import RPi.GPIO as GPIO
 import time
 
-TRIG = 4
-ECHO = 5
+TRIG = 17
+ECHO = 4
 
 def distance():
     GPIO.output(TRIG, GPIO.HIGH)

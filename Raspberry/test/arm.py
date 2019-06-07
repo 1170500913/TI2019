@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*
 import time
+from SunFounder_PCA9685 import Servo
+myservo = []
 
+    
 def catch():
     print("正在抓物体..")
     time.sleep(1)
@@ -13,6 +16,10 @@ def relase():
 
 class Arm(object):
     def __init__(self, s1=0, s2=1, s3=2):
+        for i in range(0, 4):
+            myservo.append(Servo.Servo(i))  # channel 1
+            Servo.Servo(i).setup()
+            print('myservo%s' % i)
         self.s1 = s1  # 底盘
         self.s2 = s2  # 中间
         self.s3 = s3  # 夹持器
@@ -40,7 +47,8 @@ class Arm(object):
             time.sleep(0.01)
 
     def step4(self):
-        for i in range(1430, 2501, 10):
+#        for i in range(1430, 2501, 10):
+        for i in range(1600, 0, -10):
             self.servo_angle(self.s1, i)  # Lservo_turn
             time.sleep(0.01)
 
@@ -60,7 +68,8 @@ class Arm(object):
             time.sleep(0.01)
 
     def step8(self):
-        for i in range(2500, 1431, -10):
+#        for i in range(2500, 1431, -10):
+        for i in range(0, 1600, 10):
             self.servo_angle(self.s1, i)  # Lservo_turn
             time.sleep(0.01)
 
