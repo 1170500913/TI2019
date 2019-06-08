@@ -1,7 +1,7 @@
 import requests
 import base64
 from aip import AipOcr
-import cv2
+# import cv2
 
 #获取access_token
 def getAccessToken():
@@ -44,23 +44,24 @@ def getNumber(filepath):
         return text.get('words')
 
 def photo():
-    cap=cv2.VideoCapture(0)
-    i=0
-    # 当前帧
-    frame_index = 0
+    # cap=cv2.VideoCapture(0)
+    # i=0
+    # # 当前帧
+    # frame_index = 0
 
-    while(1):
-        frame_index = frame_index + 1
-        ret ,frame = cap.read()
-       # k=cv2.waitKey(1)
-        if frame_index == 60:
-            break
-        elif frame_index == 30:
-            cv2.imwrite('test.jpg',frame)
-            i+=1
-        cv2.imshow("capture", frame)
-    cap.release()
-    cv2.destroyAllWindows()
+    # while(1):
+    #     frame_index = frame_index + 1
+    #     ret ,frame = cap.read()
+    #    # k=cv2.waitKey(1)
+    #     if frame_index == 60:
+    #         break
+    #     elif frame_index == 30:
+    #         cv2.imwrite('test.jpg',frame)
+    #         i+=1
+    #     cv2.imshow("capture", frame)
+    # cap.release()
+    # cv2.destroyAllWindows()
+    os.system("fswebcam --no-banner -r 640x480 test.jpg")
     print(getNumber('test.jpg'))
 
 if __name__ == "__main__":
