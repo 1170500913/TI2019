@@ -81,7 +81,7 @@ class main_thread(threading.Thread):
             if (self.stat == 4):  # 寻找位置状态
                 car.line_patrol_forward(in_sensors, 1, 0)
                 dist = car.distance()
-                detect = False
+                detect = True
                 if (dist < DIST):
                     detect = True
                 else:
