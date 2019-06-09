@@ -28,10 +28,10 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
-minspeed = minspeed - 10
-lowspeed = lowspeed - 10
-midspeed = midspeed - 10
-highspeed = highspeed - 10
+minspeed = minspeed - 30
+lowspeed = lowspeed - 30
+midspeed = midspeed - 40
+highspeed = highspeed - 40
 
 
 
@@ -287,7 +287,7 @@ class Car(object):
         return distance
 
     # 是否低于某距离
-    def isLowerThan(self,min = 30):
+    def isLowerThan(self,min = 10):
         dist = self.distance()
         if (dist < min):
             return True

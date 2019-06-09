@@ -81,8 +81,7 @@ class main_thread(threading.Thread):
             if (self.stat == 4):  # 寻找位置状态
                 car.line_patrol_forward(in_sensors, 1, 0)
                 dist = car.distance()
-                print("dist = " + str(dist))
-                detect = True
+                detect = False
                 if (dist < DIST):
                     detect = True
                 else:
@@ -120,9 +119,8 @@ class count_thread(threading.Thread):
             sensors = car.read_sensors()
             threadLock.release()
             num = region
-            threadLock.acquire()
             region = car.get_unload_pos(sensors, num)
-            threadLock.release()
+
 if __name__ == "__main__":
     try:
         car = Car()
