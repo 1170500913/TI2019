@@ -231,7 +231,7 @@ class Car(object):
             return 0
 
     def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
-        if sensors[4] == 1 and sensors[0] == 1:  # outside sensors is black at the same time
+        if sensors[0] == 1 and sensors[1] == 1 and sensors[2] == 1 and sensors[3] == 1 and sensors[4] == 1: 
             self.now_state = 0
         else:
             self.now_state = 1

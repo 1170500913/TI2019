@@ -20,7 +20,7 @@ def distance():
     elapsed = stop - start
     distance = elapsed * 34000  # ms
     distance = distance / 2
-    GPIO.cleanup()
+    
     return distance
 
 # 是否低于某距离
