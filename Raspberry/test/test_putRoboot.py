@@ -6,9 +6,11 @@ import ultra
 import camera
 import arm
 
+REGION_NUM = 5
 threadLock = threading.Lock()
 map = {}
 region = 0
+turn_judge = 0
 DIST = 10
 
 class main_thread(threading.Thread):
@@ -118,8 +120,7 @@ class count_thread(threading.Thread):
             threadLock.acquire()
             sensors = car.read_sensors()
             threadLock.release()
-            num = region
-            region = car.get_unload_pos(sensors, num)
+            region = car.detect_line(sensors, region) % REGION_NUM
 
 if __name__ == "__main__":
     try:

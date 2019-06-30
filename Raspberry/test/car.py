@@ -157,7 +157,8 @@ class Car(object):
         return sensors
 
     # sensors: 中间三个传感器
-
+    # flag: 模式转换: flag = 1 => 渐进调整、flag = 0 => 直接调整、
+    # turn_flag: 默认转弯方向, turn_flag == 1 => 左转、 turn_flag == 0 => 右转
     def line_patrol_forward(self, sensors=0, flag=0, turn_flag=0):
         if flag == 1:
             if sensors == '010':
@@ -220,23 +221,29 @@ class Car(object):
     def turn_judge(self, sensors):
         line_flag = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
         if line_flag == '000':
+            # 此时的last_sensor的状态是: 上次中间传感器不为'000'的状态
             if self.last_sensor[0] == 1:
                 return 1
             elif self.last_sensor[4] == 1:
-                return 2
+                return 0
             else:
-                return 3
-        else:
+                return 0
+
+        # 若中间不为'000', 且两边的传感器不全为0, 则记录传感器状态
+        else if (sensors[0] == 1 or sensors[4] == 1):  
             self.last_sensor = sensors
             return 0
 
-    def get_unload_pos(self, sensors=[0] * 5, flag_cnt=0):
+    def detect_line(self, sensors=[0] * 5, flag_cnt=0, flag_add = True):
         if sensors[0] == 1 and sensors[1] == 1 and sensors[2] == 1 and sensors[3] == 1 and sensors[4] == 1: 
             self.now_state = 0
         else:
             self.now_state = 1
         if self.now_state == 0 and self.last_state == 1:
-            flag_cnt = (flag_cnt + 1) % 5
+            if (flag_add):
+                flag_cnt = flag_cnt + 1
+            else:
+                flag_cnt = flag_cnt - 1
             print("进入第" + str(flag_cnt) + "区域")
         self.last_state = self.now_state
         return flag_cnt
@@ -252,8 +259,6 @@ class Car(object):
         b.step6()
         b.step7()
         b.step8()
-        # os.system("sudo python capture.py")
-        # pass
 
     def unload(self):
         print("unload")

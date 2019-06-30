@@ -44,7 +44,7 @@ class Thread2(threading.Thread):
             threadLock.acquire()
             sensors = car.read_sensors()
             threadLock.release()
-            count = car.get_unload_pos(sensors, count)
+            count = car.detect_line(sensors, count)
             
 #            time.sleep(0.001)
 
