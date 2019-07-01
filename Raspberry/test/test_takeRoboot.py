@@ -6,7 +6,7 @@ import ultra
 import camera
 import arm
 import re
-import map
+import rw
 
 REGION_NUM = 5
 
@@ -63,14 +63,22 @@ class main_thread(threading.Thread):
                 if (waited_object):  # 待抓物品不为空
                     target_object = waited_object[0]
                     del waited_object[0]
-                    readMap()
+                    map = rw.readMap()
                     target_region = map[target_object]
                     self.stat = 1
 
             if (self.stat == 1):  # 巡线到目标区域
                 car.line_patrol_forward(in_sensors, 1, 0)
-                if (region == target_region):  # 到了目标区域
-                    self.stat = 2
+                if (region == target_region) + 1:  # 到了目标区域的结束区,掉头
+
+                    # 准备掉头
+                    # 先转过一段距离, 以便状态4的判定
+                    forward = False
+                    count = 5000
+                    while (count != 0):
+                        car.right()
+                        count -= 1
+                    self.stat = 4
 
             if (self.stat == 2):  # 寻货状态
                 car.line_patrol_forward(in_sensors, flag = 1, turn_flag = 0)
@@ -96,16 +104,11 @@ class main_thread(threading.Thread):
                     if (object_id == -1):  # 识别失败
                         self.stat = 3    # 前进一段步长
                         count_down = 400
-                    else if (object_id == target_object):   # 识别成功
+                    elif (object_id == target_object):   # 识别成功
                         arm.catch()   # 抓取物品
+                        self.stat = 5
 
-                        # 准备掉头
-                        # 先转过一段距离, 以便状态4的判定
-                        count = 5000
-                        while (count != 0):
-                            car.left()
-                            count -= 1
-                        self.stat = 4  
+                       
 
             if (self.stat == 3):   # 前进一段步长
                 count_down -= 1
@@ -117,23 +120,24 @@ class main_thread(threading.Thread):
                 if (count_down == 0):
                     self.stat = 2
 
-            if (self.stat == 4):
-                car.left()
-                if (sensor[2] == 1):
+            if (self.stat == 4):  # 掉头
+                car.right()
+                if (sensor[2] == 1): # 掉头结束，开始寻货 
                     car.stop()
-                    self.stat == 5
+                    self.stat == 2
 
                     
 
             if (self.stat == 5):   # 回到出发点
-                forward = False
                 
                 car.line_patrol_forward(in_sensors, 1, 0)
                 if (region == 0):
                     self.stat = 0
+                    arm.release()
 
-
-                        
-                
-
-                
+                    # 更新map
+                    threadLock.acquire()
+                    map = rw.readMap()
+                    del map[target_object]
+                    rw.writeMap(map)
+                    threadLock.release()

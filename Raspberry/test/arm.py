@@ -9,7 +9,7 @@ def catch():
     time.sleep(1)
     print("已抓到物体")
 
-def relase():
+def release():
     print("正在放物品..")
     time.sleep(1)
     print("已放置物品")

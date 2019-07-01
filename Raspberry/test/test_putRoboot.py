@@ -5,6 +5,7 @@ import threading
 import ultra
 import camera
 import arm
+import rw
 
 REGION_NUM = 10
 threadLock = threading.Lock()
@@ -26,6 +27,10 @@ class main_thread(threading.Thread):
         finished = False
         count_down = 0 # 用于前进一段步长
         object_id = 0
+        
+        # 从文件读取map
+        map = rw.readMap()
+
         while (True):
 #            threadLock.acquire()
             sensors = car.read_sensors()
@@ -95,8 +100,15 @@ class main_thread(threading.Thread):
                 
                 if (detect == False):
                     car.stop()
-                    arm.relase()
+                    arm.release()    # 放下货物
+
+                    threadLock.acquire()
+                    map = rw.readMap()  # 读取原本
                     map[object_id] = region  # 更新map
+                    rw.writeMap(map)
+                    threadLock.release()
+
+
                     self.stat = 5
 
                 if (region == 0):
@@ -121,9 +133,7 @@ class count_thread(threading.Thread):
         global region
         car = self.car
         while (True):
-#            threadLock.acquire()
             sensors = car.read_sensors()
-#            threadLock.release()
             region = car.detect_line(sensors, region) % (REGION_NUM + 1)
 
 if __name__ == "__main__":
