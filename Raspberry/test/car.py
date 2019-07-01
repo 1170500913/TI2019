@@ -28,10 +28,10 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
-minspeed = minspeed - 30
-lowspeed = lowspeed - 30
-midspeed = midspeed - 40
-highspeed = highspeed - 40
+#minspeed = minspeed - 30
+#lowspeed = lowspeed - 30
+#midspeed = midspeed - 40
+#highspeed = highspeed - 40
 
 
 
@@ -190,13 +190,14 @@ class Car(object):
             elif sensors == '111':
                 self.slip_cnt = 0
                 self.forward(highspeed, highspeed)
-            elif sensors == '000':
+#            elif sensors == '000':
+            else:
                 if turn_flag == 1:
                     self.left(highspeed)
                 else:
                     self.right(highspeed)
-            else:
-                self.stop()
+#            else:
+#                self.stop()
         else:
             if sensors == '010':
                 self.forward(highspeed, highspeed)
@@ -222,15 +223,15 @@ class Car(object):
         line_flag = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
         if line_flag == '000':
             # 此时的last_sensor的状态是: 上次中间传感器不为'000'的状态
-            if self.last_sensor[0] == 1:
-                return 1
-            elif self.last_sensor[4] == 1:
+            if self.last_sensor[4] == 1:
                 return 0
+            elif self.last_sensor[0] == 1:
+                return 1
             else:
                 return 0
 
         # 若中间不为'000', 且两边的传感器不全为0, 则记录传感器状态
-        else if (sensors[0] == 1 or sensors[4] == 1):  
+        elif (sensors[0] == 1 or sensors[4] == 1):  
             self.last_sensor = sensors
             return 0
 

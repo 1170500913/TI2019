@@ -6,7 +6,7 @@ import ultra
 import camera
 import arm
 
-REGION_NUM = 5
+REGION_NUM = 10
 threadLock = threading.Lock()
 map = {}
 region = 0
@@ -27,8 +27,12 @@ class main_thread(threading.Thread):
         count_down = 0 # 用于前进一段步长
         object_id = 0
         while (True):
+#            threadLock.acquire()
             sensors = car.read_sensors()
+#            threadLock.release()
+            
             in_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
+            turn_flag = car.turn_judge(sensors)
             if (self.stat == 0):  # 等待状态
                 car.stop()
                 ch = input("输入s开始")
@@ -36,7 +40,7 @@ class main_thread(threading.Thread):
                     self.stat = 1
 
             if (self.stat == 1):  # 寻货状态
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, turn_flag)
 
                 if (region != 0):
                     self.stat = 5
@@ -65,7 +69,7 @@ class main_thread(threading.Thread):
 
             if (self.stat == 2):   # 前进一段步长状态
                 count_down -= 1
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, turn_flag)
                 if (region != 0):
                     self.stat = 5
                     print("没有可搬的货物")
@@ -75,13 +79,13 @@ class main_thread(threading.Thread):
                     self.stat = 1    # 前进步长结束，又回到寻货状态
             
             if (self.stat == 3):   # 离开停货区状态
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, turn_flag)
                 if (region == 1):
                     self.stat = 4
 
 
             if (self.stat == 4):  # 寻找位置状态
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, turn_flag)
                 dist = car.distance()
                 detect = True
                 if (dist < DIST):
@@ -100,7 +104,7 @@ class main_thread(threading.Thread):
                 	self.stat = 0
 
             if (self.stat == 5):   # 回停货区的途中
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, turn_flag)
                 if (region == 0):
                     if (finished):
                         self.stat = 0
@@ -117,10 +121,10 @@ class count_thread(threading.Thread):
         global region
         car = self.car
         while (True):
-            threadLock.acquire()
+#            threadLock.acquire()
             sensors = car.read_sensors()
-            threadLock.release()
-            region = car.detect_line(sensors, region) % REGION_NUM
+#            threadLock.release()
+            region = car.detect_line(sensors, region) % (REGION_NUM + 1)
 
 if __name__ == "__main__":
     try:
