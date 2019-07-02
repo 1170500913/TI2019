@@ -18,6 +18,8 @@ def readMap():
         key = int(array[0])
         value = int(array[1])
         map[key] = value
+    print("读取到的map:")
+    print(map)
     return map
 
 def writeMap(map):

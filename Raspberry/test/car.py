@@ -28,10 +28,10 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
-#minspeed = minspeed - 30
-#lowspeed = lowspeed - 30
-#midspeed = midspeed - 40
-#highspeed = highspeed - 40
+minspeed = minspeed - 15
+lowspeed = lowspeed - 15
+midspeed = midspeed - 20
+highspeed = highspeed - 20
 
 
 
@@ -190,8 +190,8 @@ class Car(object):
             elif sensors == '111':
                 self.slip_cnt = 0
                 self.forward(highspeed, highspeed)
-#            elif sensors == '000':
-            else:
+            elif sensors == '000':
+#            else:
                 if turn_flag == 1:
                     self.left(highspeed)
                 else:

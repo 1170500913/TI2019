@@ -6,6 +6,7 @@ import threading
 
 # 全局变量
 count = 0   # 黑横线的数量
+sensors = [0] * 5
 
 threadLock = threading.Lock()
 
@@ -18,12 +19,9 @@ class Thread1(threading.Thread):
         self.stop = stop
 
     def run(self):
-        global count
+        global count, sensors
         car = self.car
         while (True):
-            threadLock.acquire()
-            sensors = car.read_sensors()
-            threadLock.release()
             mid_three_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])  
             turn_flag = car.turn_judge(sensors)
             car.line_patrol_forward(mid_three_sensors, 1, turn_flag)
@@ -38,12 +36,10 @@ class Thread2(threading.Thread):
         self.car = car
 
     def run(self):
-        global count
+        global count, sensors
         car = self.car
         while (True):
-            threadLock.acquire()
             sensors = car.read_sensors()
-            threadLock.release()
             count = car.detect_line(sensors, count)
             
 #            time.sleep(0.001)
@@ -51,7 +47,8 @@ class Thread2(threading.Thread):
 
 if __name__ == "__main__":
     try:
-        stop = int(input("最大黑横线："))
+#        stop = int(input("最大黑横线："))
+        stop = 10000
         car = Car()
         task1 = Thread1(car, stop)
         task2 = Thread2(car)

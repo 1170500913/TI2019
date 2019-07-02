@@ -9,6 +9,7 @@ import rw
 
 REGION_NUM = 10
 threadLock = threading.Lock()
+fileLock = threading.Lock()
 map = {}
 region = 0
 turn_judge = 0
@@ -102,11 +103,11 @@ class main_thread(threading.Thread):
                     car.stop()
                     arm.release()    # 放下货物
 
-                    threadLock.acquire()
+                    fileLock.acquire()
                     map = rw.readMap()  # 读取原本
                     map[object_id] = region  # 更新map
                     rw.writeMap(map)
-                    threadLock.release()
+                    fileLock.release()
 
 
                     self.stat = 5
