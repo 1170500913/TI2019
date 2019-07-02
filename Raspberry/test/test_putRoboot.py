@@ -6,6 +6,10 @@ import ultra
 import camera
 import arm
 import rw
+import socketserver
+import threading
+import socket
+import serverThread
 
 REGION_NUM = 10
 threadLock = threading.Lock()
@@ -14,6 +18,11 @@ map = {}
 region = 0
 turn_judge = 0
 DIST = 10
+sensors = [0] * 5
+
+map_changed = False
+send_msg = ""
+recv_msg = ""
 
 class main_thread(threading.Thread):
 
@@ -23,7 +32,7 @@ class main_thread(threading.Thread):
         self.stat = 0
 
     def run(self):
-        global region
+        global region, sensors
         car = self.car
         finished = False
         count_down = 0 # 用于前进一段步长
@@ -34,27 +43,27 @@ class main_thread(threading.Thread):
 
         while (True):
 #            threadLock.acquire()
-            sensors = car.read_sensors()
+            
 #            threadLock.release()
             
             in_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             turn_flag = car.turn_judge(sensors)
             if (self.stat == 0):  # 等待状态
                 car.stop()
-                ch = input("输入s开始")
-                if (ch == 's'):
+                if (recv_msg == 'ch'):
                     self.stat = 1
+                    recv_msg = ""
 
             if (self.stat == 1):  # 寻货状态
                 car.line_patrol_forward(in_sensors, 1, turn_flag)
 
                 if (region != 0):
                     self.stat = 5
-                    print("没有可搬的货物")
+                    send_msg = "没有可搬的货物"
                     finished = True
                     
                 dist = car.distance()
-                print("dist = " + str(dist))
+                # print("dist = " + str(dist))
                 detect = False
                 if (dist < DIST):
                     detect = True
@@ -64,7 +73,7 @@ class main_thread(threading.Thread):
                 if (detect == True):
                     car.stop()
                     object_id = camera.identify()
-                    print("object = " + str(object_id))
+                    # print("object = " + str(object_id))
                     if (object_id == -1):  # 识别失败
                         self.stat = 2
                         count_down = 400
@@ -78,7 +87,7 @@ class main_thread(threading.Thread):
                 car.line_patrol_forward(in_sensors, 1, turn_flag)
                 if (region != 0):
                     self.stat = 5
-                    print("没有可搬的货物")
+                    send_msg = "没有可搬的货物"
                     finished = True
                     
                 if (count_down == 0):
@@ -108,12 +117,12 @@ class main_thread(threading.Thread):
                     map[object_id] = region  # 更新map
                     rw.writeMap(map)
                     fileLock.release()
-
+                    map_changed = True
 
                     self.stat = 5
 
                 if (region == 0):
-                	print("货架已经满了")
+                	send_msg = "货架已经满了"
                 	self.stat = 0
 
             if (self.stat == 5):   # 回停货区的途中
@@ -131,7 +140,7 @@ class count_thread(threading.Thread):
         self.car = car
         self.stat = 0
     def run(self):
-        global region
+        global region, sensors
         car = self.car
         while (True):
             sensors = car.read_sensors()
@@ -142,6 +151,10 @@ if __name__ == "__main__":
         car = Car()
         task1 = main_thread(car)
         task2 = count_thread(car)
+
+        server = socketserver.ThreadingTCPServer(ADDR, serverThread.MyServer)
+        server.serve_forever()
+
         task1.start()
         task2.start()
         task1.join()

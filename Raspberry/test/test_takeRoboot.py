@@ -7,6 +7,10 @@ import camera
 import arm
 import re
 import rw
+import socketserver
+import threading
+import socket
+import serverThread
 
 REGION_NUM = 5
 
@@ -18,6 +22,11 @@ waited_object = []
 region = 0
 DIST = 10
 sensors = [0] *5
+
+
+map_changed = False
+send_msg = ""
+recv_msg = ""
 
 class count_thread(threading.Thread):
     def __init__(self, car: Car):
@@ -58,9 +67,17 @@ class main_thread(threading.Thread):
             if (self.stat == 0):  # 待命状态
                 car.stop()
                 #######Test#######
-                test_object = int(input("输入要取的物品:"))
-                waited_object.append(test_object)
+                # test_object = int(input("输入要取的物品:"))
+                # waited_object.append(test_object)
                 ##################
+
+                pat = re.compile("qh:.+")
+                if (pat.match(recv_msg)):
+                    recv_msg = recv_msg[0:len(recv_msg) - 1]
+                    entrys = recv_msg.split("[,\n\r]")
+                    for entry in entrys:
+                        if (re.compile("\d+").match(entry)):
+                            waited_object.append(int(entry))
 
                 if (waited_object):  # 待抓物品不为空
                     forward = True
@@ -150,8 +167,6 @@ class main_thread(threading.Thread):
                     car.stop()
 
                     # 更新map
-                    
-                    
                     if (is_find):
                         fileLock.acquire()
                         map = rw.readMap()
@@ -159,6 +174,8 @@ class main_thread(threading.Thread):
                         del map[target_object]
                         rw.writeMap(map)
                         fileLock.release()
+                        map_changed = True
+
             if (self.stat == 6):   # 到达目标区域后, 再前进一段步长
                 count_down -= 1
                 
@@ -181,6 +198,8 @@ if __name__ == "__main__":
         car = Car()
         task1 = main_thread(car)
         task2 = count_thread(car)
+        server = socketserver.ThreadingTCPServer(ADDR, serverThread.MyServer)
+        server.serve_forever()
         task1.start()
         task2.start()
         task1.join()
