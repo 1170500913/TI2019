@@ -199,17 +199,28 @@ class main_thread(threading.Thread):
                         count -= 1
                     self.stat = 4
 
+class server_thread(threading.Thread):
+    def __init__(self, ADDR):
+        threading.Thread.__init__(self)
+        self.ADDR = ADDR
+    def run(self):
+        server = socketserver.ThreadingTCPServer(self.ADDR, serverThread.MyServer)
+        server.serve_forever()
+
 if __name__ == "__main__":
     try:
         car = Car()
         task1 = main_thread(car)
         task2 = count_thread(car)
-        server = socketserver.ThreadingTCPServer(ADDR, serverThread.MyServer)
-        server.serve_forever()
+        task3 = server_thread(ADDR)
+
         task1.start()
         task2.start()
+        task3.start()
+
         task1.join()
         task2.join()
+        task3.join()
     except KeyboardInterrupt:
         print("ERROR")
     finally:

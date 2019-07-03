@@ -20,6 +20,14 @@ turn_judge = 0
 DIST = 10
 sensors = [0] * 5
 
+
+# 服务端开放的ip和端口号port
+HOST = '172.20.10.13'
+PORT = 2222
+
+# 地址
+ADDR = (HOST, PORT)
+
 map_changed = False
 send_msg = ""
 recv_msg = ""
@@ -146,19 +154,28 @@ class count_thread(threading.Thread):
             sensors = car.read_sensors()
             region = car.detect_line(sensors, region) % (REGION_NUM + 1)
 
+class server_thread(threading.Thread):
+    def __init__(self, ADDR):
+        threading.Thread.__init__(self)
+        self.ADDR = ADDR
+    def run(self):
+        server = socketserver.ThreadingTCPServer(self.ADDR, serverThread.MyServer)
+        server.serve_forever()
+
 if __name__ == "__main__":
     try:
         car = Car()
         task1 = main_thread(car)
         task2 = count_thread(car)
-
-        server = socketserver.ThreadingTCPServer(ADDR, serverThread.MyServer)
-        server.serve_forever()
+        task3 = server_thread(ADDR)
 
         task1.start()
         task2.start()
+        task3.start()
+
         task1.join()
         task2.join()
+        task3.join()
     except KeyboardInterrupt:
         print("ERROR")
     finally:
