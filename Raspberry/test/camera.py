@@ -42,7 +42,7 @@ def getNumber(filepath):
         return -1
     for text in message.get('words_result'):
         # print(text.get('words') + '\n')
-        return text.get('words')
+        return int(text.get('words'))
 
 def identify():
     # cap=cv2.VideoCapture(0)

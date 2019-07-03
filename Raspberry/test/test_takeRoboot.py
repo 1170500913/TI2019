@@ -10,7 +10,7 @@ import rw
 import socketserver
 import threading
 import socket
-import serverThread
+
 
 REGION_NUM = 5
 
@@ -21,18 +21,24 @@ map = {}
 waited_object = []
 region = 0
 DIST = 10
-sensors = [0] *5
+sensors = [0] * 5
 
 # 服务端开放的ip和端口号port
 HOST = '172.20.10.13'
 PORT = 2222
-
 # 地址
 ADDR = (HOST, PORT)
+# 本地map文件路径
+FILEPATH = './map.txt'
+# 缓冲池大小
+BUFSIZE = 1024
+# 创建互斥锁
+mutex = threading.Lock()
 
 map_changed = False
 send_msg = ""
 recv_msg = ""
+monitor = False
 
 class count_thread(threading.Thread):
     def __init__(self, car: Car):
@@ -58,7 +64,8 @@ class main_thread(threading.Thread):
         self.stat = 0
 
     def run(self):
-        global region, waited_object, forward, sensors
+        global region, waited_object
+        global forward, sensors, map_changed, send_msg, recv_msg, monitor
         car = self.car
         target_object = 0
         target_region = 0
@@ -66,24 +73,29 @@ class main_thread(threading.Thread):
 
         count_down = 0 # 用于前进一段步长
         
-
+        send_msg = "PICK ROBOT FREE\r\n"
         while True:
             sensors = car.read_sensors()
             in_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             if (self.stat == 0):  # 待命状态
+#                print("状态0")
                 car.stop()
                 #######Test#######
                 # test_object = int(input("输入要取的物品:"))
                 # waited_object.append(test_object)
                 ##################
-
-                pat = re.compile("qh:.+")
+                monitor = True
+                pat = re.compile("QH:.+")
                 if (pat.match(recv_msg)):
-                    recv_msg = recv_msg[0:len(recv_msg) - 1]
-                    entrys = recv_msg.split("[,\n\r]")
-                    for entry in entrys:
-                        if (re.compile("\d+").match(entry)):
-                            waited_object.append(int(entry))
+                    recv_msg = recv_msg.strip()
+                    print("处理消息:" + recv_msg)
+                    recv_msg = recv_msg[3:]
+                    entrys = recv_msg.split(",")
+                    for i in range(0, len(entrys)):
+                        if (re.compile("\d+").match(entrys[i])):
+                            waited_object.append(int(entrys[i]))
+                    monitor = False
+                    recv_msg = ""
 
                 if (waited_object):  # 待抓物品不为空
                     forward = True
@@ -92,6 +104,8 @@ class main_thread(threading.Thread):
                     del waited_object[0]
                     map = rw.readMap()
                     target_region = map[target_object]
+
+                    send_msg = "PICK ROBOT WORKING\r\n"
                     self.stat = 1
 
             if (self.stat == 1):  # 巡线到目标区域
@@ -117,7 +131,7 @@ class main_thread(threading.Thread):
                 
                 if (region != target_region):
                     self.stat = 5
-                    print("未找到目标货物")
+                    send_msg = "PICK 未找到目标货物\r\n"
 
                 dist = car.distance()
 
@@ -151,7 +165,7 @@ class main_thread(threading.Thread):
                 
                 if (region != target_region):
                     self.stat = 5
-                    print("未找到目标货物")
+                    send_msg = "PICK 未找到目标货物\r\n"
                 if (count_down == 0):
                     self.stat = 2
 
@@ -167,20 +181,21 @@ class main_thread(threading.Thread):
 
             if (self.stat == 5):   # 回到出发点
 #                print("状态5")
+                turn_flag = car.turn_judge(sensors)
                 car.line_patrol_forward(in_sensors, 1, turn_flag)
                 if (region == 0):
                     self.stat = 0
                     car.stop()
-
+                    send_msg = "PICK ROBOT FREE\r\n"
                     # 更新map
-                    if (is_find):
-                        fileLock.acquire()
-                        map = rw.readMap()
-                        arm.release()
-                        del map[target_object]
-                        rw.writeMap(map)
-                        fileLock.release()
-                        map_changed = True
+#                    if (is_find):
+                    fileLock.acquire()
+                    map = rw.readMap()
+                    arm.release()
+                    del map[target_object]
+                    rw.writeMap(map)
+                    fileLock.release()
+                    map_changed = True
 
             if (self.stat == 6):   # 到达目标区域后, 再前进一段步长
                 count_down -= 1
@@ -199,12 +214,80 @@ class main_thread(threading.Thread):
                         count -= 1
                     self.stat = 4
 
+class MyServer(socketserver.BaseRequestHandler):
+    # 定义handle方法，函数名只能是handle
+    def handle(self):
+        global map_changed, send_msg, recv_msg, monitor
+        conn = self.request
+        # 打开文件
+        with open(FILEPATH, mode='r+', encoding='utf-8') as f:
+            content = f.read()
+            print(content)
+        # 发送map.txt内容
+        conn.sendall(content.encode('utf-8'))
+#        recv_task = server_thread_recv(conn)
+#        recv_task.start()
+        # 进入监听全局变量，注意加锁
+        while True:
+            if map_changed:
+                # 获取锁
+                mutex.acquire()
+                with open(FILEPATH, mode='r+', encoding='utf-8') as f:
+                    content = f.read()  # 一次性读成一个字符串
+                    print(content)
+                conn.sendall(content.encode('utf-8'))
+                map_changed = False
+                # 释放锁
+                mutex.release()
+                
+
+            # 判断msg非空
+            if send_msg:
+                mutex.acquire()
+                conn.sendall(send_msg.encode('utf-8'))
+                send_msg = ''
+                mutex.release()
+            while monitor:
+                data = str(conn.recv(BUFSIZE), encoding='utf-8') #接受tcp消息
+                if data:
+                    pattern = re.compile('(\d+,\d+ )+')
+                    if (pattern.match(data)):
+                        # 覆盖写
+                        with open(FILEPATH, mode='r+', encoding='utf-8') as f:
+                            f.write(data) 
+                    else:
+                    
+                        recv_msg = data
+                        print("收到消息:" + recv_msg)
+                    data = ""
+
+#class server_thread_recv(threading.Thread):
+#    def __init__(self, conn):
+#        threading.Thread.__init__(self)
+#        self.conn = conn
+#    def run(self):
+#        global recv_msg
+#        while(True):
+#            data = str(self.conn.recv(BUFSIZE), encoding='utf-8') #接受tcp消息
+#            if data:
+#                pattern = re.compile('(\d+,\d+ )+')
+#                if (pattern.match(data)):
+#                    # 覆盖写
+#                    with open(FILEPATH, mode='r+', encoding='utf-8') as f:
+#                        f.write(data) 
+#                else:
+#                    recv_msg = data
+#                    print("收到消息:" + recv_msg)
+#                data = ""
+
 class server_thread(threading.Thread):
     def __init__(self, ADDR):
         threading.Thread.__init__(self)
         self.ADDR = ADDR
     def run(self):
-        server = socketserver.ThreadingTCPServer(self.ADDR, serverThread.MyServer)
+#        socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        socketserver.ThreadingTCPServer.allow_reuse_address = True
+        server = socketserver.ThreadingTCPServer(self.ADDR, MyServer)
         server.serve_forever()
 
 if __name__ == "__main__":

@@ -28,7 +28,7 @@ def writeMap(map):
     for key, value in map.items():
         string += str(key) + ',' + str(value) + ' '
     with open('./map.txt', mode='w', encoding='utf-8') as f:
-        f.write(string)
+        f.write(string + '\r\n')
 
 
 if __name__ == "__main__":
