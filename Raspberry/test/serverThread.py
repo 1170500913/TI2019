@@ -6,9 +6,9 @@ import re
 
 # 服务端开放的ip和端口号port
 HOST = '172.20.10.13'
-PORT = 80
+PORT = 2222
 # 本地map文件路径
-FILEPATH = './Raspberry/test/map.txt'
+FILEPATH = './map.txt'
 # 缓冲池大小
 BUFSIZE = 1024
 # 地址

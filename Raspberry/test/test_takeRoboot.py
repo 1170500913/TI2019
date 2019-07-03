@@ -23,6 +23,12 @@ region = 0
 DIST = 10
 sensors = [0] *5
 
+# 服务端开放的ip和端口号port
+HOST = '172.20.10.13'
+PORT = 2222
+
+# 地址
+ADDR = (HOST, PORT)
 
 map_changed = False
 send_msg = ""
@@ -192,7 +198,7 @@ class main_thread(threading.Thread):
                         car.right()
                         count -= 1
                     self.stat = 4
-           
+
 if __name__ == "__main__":
     try:
         car = Car()
