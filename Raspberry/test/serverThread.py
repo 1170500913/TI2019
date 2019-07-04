@@ -19,7 +19,7 @@ ADDR = (HOST, PORT)
 mutex = threading.Lock()
 #
 map_changed = True
-send_msg = "PICK 好好学习天天向上\r\n"
+send_msg = "PICK ROBOT WORKING\r\n"
 recv_msg  = ''
 #global map_changed, send_msg, recv_msg
 class MyServer(socketserver.BaseRequestHandler):
@@ -37,11 +37,13 @@ class MyServer(socketserver.BaseRequestHandler):
         # 进入监听全局变量，注意加锁
         while True:
             time.sleep(1)
+            
             mutex.acquire()
             print('send:' + send_msg)
             conn.sendall(send_msg.encode('utf-8'))
 #                send_msg = ''
             mutex.release()
+            send_msg = "DELIVERY ROBOT FREE\r\n"
 #            data = str(conn.recv(BUFSIZE), encoding='utf-8') #接受tcp消息
 #            if data:
 #                pattern = re.compile('(\d+,\d+ )+')

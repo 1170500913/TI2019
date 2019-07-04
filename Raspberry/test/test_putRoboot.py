@@ -54,7 +54,7 @@ class main_thread(threading.Thread):
         # 从文件读取map
         map = rw.readMap()
 
-        send_msg = "DELIVERY ROBOT FREE"
+        send_msg = "DELIVERY ROBOT FREE\r\n"
         while (True):
 #            threadLock.acquire()
             

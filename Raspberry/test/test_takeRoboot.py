@@ -10,7 +10,7 @@ import rw
 import socketserver
 import threading
 import socket
-
+import time
 
 REGION_NUM = 5
 
@@ -74,8 +74,10 @@ class main_thread(threading.Thread):
         count_down = 0 # 用于前进一段步长
         
         send_msg = "PICK ROBOT FREE\r\n"
+        arm.init()
         while True:
-            sensors = car.read_sensors()
+#            time.sleep(0.001)
+#            sensors = car.read_sensors()
             in_sensors = str(sensors[1]) + str(sensors[2]) + str(sensors[3])
             if (self.stat == 0):  # 待命状态
 #                print("状态0")
@@ -117,6 +119,7 @@ class main_thread(threading.Thread):
                 if (region == target_region + 1):  # 到了目标区域的结束区,掉头
                     # 先往前走一点
                     count_down = 2000
+                    
                     self.stat = 6
 
                     
@@ -171,7 +174,7 @@ class main_thread(threading.Thread):
 
             if (self.stat == 4):  # 掉头
 #                print("状态4")
-                car.line_patrol_forward(in_sensors, 1, 0)
+                car.line_patrol_forward(in_sensors, 1, 1)
                 if (sensors[2] == 1): # 掉头结束，开始寻货 
                     car.stop()
                     print("掉头结束")
@@ -199,7 +202,7 @@ class main_thread(threading.Thread):
 
             if (self.stat == 6):   # 到达目标区域后, 再前进一段步长
                 count_down -= 1
-                
+#                print(count_down)
                 turn_flag = car.turn_judge(sensors)
                 car.line_patrol_forward(in_sensors, 1, turn_flag)
                 
@@ -208,9 +211,11 @@ class main_thread(threading.Thread):
                     # 先转过一段距离, 以便状态4的判定
                     forward = False
                     region -= 1 # 减去多出的区域
+                    print("区域减1:" + str(region))
                     count = 10000
                     while (count != 0):
-                        car.right()
+#                        car.right()
+                        car.left()
                         count -= 1
                     self.stat = 4
 
@@ -225,8 +230,7 @@ class MyServer(socketserver.BaseRequestHandler):
             print(content)
         # 发送map.txt内容
         conn.sendall(content.encode('utf-8'))
-#        recv_task = server_thread_recv(conn)
-#        recv_task.start()
+        
         # 进入监听全局变量，注意加锁
         while True:
             if map_changed:

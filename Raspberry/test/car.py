@@ -28,10 +28,10 @@ lowspeed = 35
 midspeed = 68
 highspeed = 70
 
-minspeed = minspeed - 15
-lowspeed = lowspeed - 15
-midspeed = midspeed - 20
-highspeed = highspeed - 20
+minspeed = minspeed - 25
+lowspeed = lowspeed - 25
+midspeed = midspeed - 30
+highspeed = highspeed - 30
 
 
 

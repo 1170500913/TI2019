@@ -2,17 +2,67 @@
 import time
 from SunFounder_PCA9685 import Servo
 myservo = []
+import Adafruit_PCA9685 as pca
+import time
+def init():
+    pwm=pca.PCA9685()
+    pwm.set_pwm_freq(50)
+    pwm.set_pwm(0,0,250)
+    time.sleep(0.2)
+    pwm.set_pwm(1,0,220)
+    time.sleep(0.2)
+    pwm.set_pwm(2,0,250)
+    time.sleep(0.2)
+    pwm.set_pwm(3,0,102)
 
     
 def catch():
-    print("正在抓物体..")
+    pwm=pca.PCA9685()
+    pwm.set_pwm_freq(50)
+    pwm.set_pwm(0,0,460)
+    time.sleep(0.2)
+    pwm.set_pwm(3,0,512)
+    time.sleep(0.2)
+    pwm.set_pwm(2,0,340)
+    time.sleep(0.5)
+    pwm.set_pwm(1,0,370)
+    time.sleep(0.5)
+    pwm.set_pwm(3,0,102)
     time.sleep(1)
-    print("已抓到物体")
+    pwm.set_pwm(0,0,400)
+    time.sleep(0.2)
+    pwm.set_pwm(0,0,350)
+    time.sleep(0.2)
+    pwm.set_pwm(0,0,300)
+    time.sleep(0.2)
+    pwm.set_pwm(0,0,250)
+    time.sleep(0.2)
+    pwm.set_pwm(2,0,250)
+    time.sleep(0.2)
+    pwm.set_pwm(1,0,220)
 
-def release():
-    print("正在放物品..")
-    time.sleep(1)
-    print("已放置物品")
+    
+def release():  # right
+    pwm=pca.PCA9685()
+    pwm.set_pwm_freq(50)
+    pwm.set_pwm(0,0,102)
+    time.sleep(0.2)
+    pwm.set_pwm(1,0,280)
+    time.sleep(0.2)
+    pwm.set_pwm(2,0,200)
+    time.sleep(0.2)
+    pwm.set_pwm(3,0,512)
+    time.sleep(0.2)
+    pwm.set_pwm(1,0,250)
+    time.sleep(0.5)
+    pwm.set_pwm(2,0,200)
+    time.sleep(0.2)
+    pwm.set_pwm(3,0,102)
+    pwm.set_pwm(0,0,250)
+    time.sleep(0.2)
+    pwm.set_pwm(1,0,220)
+    time.sleep(0.2)
+    pwm.set_pwm(2,0,250)
 
 class Arm(object):
     def __init__(self, s1=0, s2=1, s3=2):
